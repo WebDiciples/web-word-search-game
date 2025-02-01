@@ -50,7 +50,6 @@
             "zenitsu",
             "muzan",
             "light",
-            "l",
             "death",
             "ryuk",
             "edward",
@@ -391,7 +390,7 @@
     "Holidays & Celebrations": {
         "name": "Holidays & Celebrations",
         "image": "fi fi-rr-gift",
-        "bg_gradient": "linear-gradient(45deg, #ff5858 40%, #ffc8c8)",
+        "bg_gradient": "linear-gradient(45deg, orangered 40%, tomato)",
         "words": [
             "anniversary",
             "advent",

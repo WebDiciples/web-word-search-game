@@ -9,7 +9,6 @@ const game_container = document.querySelector(".game_container"),
 	options_btns = document.querySelectorAll(".setting_mid_head button"),
 	music_select_btns = document.querySelectorAll(".options input"),
 	difficulty_select_btns = document.querySelectorAll(".difficulty input"),
-	languages_select_btns = document.querySelectorAll(".languages input"),
 	close_dialog = document.querySelector(".close_dialog"),
 	splash_screen = document.querySelector(".splash_screen"),
 	start_screen = document.querySelector(".start_screen"),
@@ -79,12 +78,27 @@ let start_cell = null;
 
 let hue = 10;
 
-let game_data = JSON.parse(localStorage.getItem("game_data")) || {
-	music: true,
-	sound: true,
-	difficulty: "normal",
-	language: "english",
-};
+let storedData = localStorage.getItem("game_data");
+let game_data = {};
+
+if (storedData) {
+	try {
+		game_data = JSON.parse(storedData);
+	} catch (e) {
+		console.error("Error parsing JSON:", e);
+		game_data = {
+			music: true,
+			sound: true,
+			difficulty: "normal",
+		};
+	}
+} else {
+	game_data = {
+		music: true,
+		sound: true,
+		difficulty: "normal",
+	};
+}
 
 let can_play_music = game_data.music;
 let can_play_sound = game_data.sound;
@@ -205,9 +219,6 @@ options_btns.forEach((btn) => {
 			case "difficulty":
 				setting_body.style.justifyContent = "center";
 				break;
-			case "languages":
-				setting_body.style.justifyContent = "end";
-				break;
 
 			default:
 				alert("It's seem something went wrong! Try reload your tab.");
@@ -260,29 +271,6 @@ difficulty_select_btns.forEach((input) => {
 	});
 
 	if (input.id == game_data.difficulty) {
-		input.checked = true;
-	}
-});
-
-languages_select_btns.forEach((input) => {
-	input.addEventListener("click", () => {
-		play_sound("click.wav");
-
-		switch (input.id) {
-			case "english":
-				game_data.language = input.id;
-				break;
-			case "french":
-				game_data.language = input.id;
-				break;
-			case "spanish":
-				game_data.language = input.id;
-				break;
-		}
-		localStorage.setItem("game_data", JSON.stringify(game_data));
-	});
-
-	if (input.id == game_data.language) {
 		input.checked = true;
 	}
 });
@@ -404,7 +392,7 @@ function select_words(categoryWords, maxWords) {
 	const shuffled = [...categoryWords];
 
 	for (let i = shuffled.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1)); 
+		const j = Math.floor(Math.random() * (i + 1));
 		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 	}
 
@@ -450,7 +438,7 @@ function render_grid(param) {
 				cell.setAttribute("role", "gridcell");
 
 				if (letter == "") {
-					// letter = letter_arr[Math.floor(letter_arr.length * Math.random())];
+					letter = letter_arr[Math.floor(letter_arr.length * Math.random())];
 				}
 
 				letter_cont.textContent = letter; // It's purely optional for the ui the line show on top the letter.you can remove the line to fix it
@@ -554,24 +542,40 @@ function validate_word() {
 
 	return placed_words.includes(word);
 }
+////////////////////////// MOUSE AND TOUCH CONTROLL //////////////////////////
 
-////////////////////////// MOUSE CONTROLL //////////////////////////
-// Mouse down event
-grid_container.addEventListener("mousedown", (e) => {
-	if (e.target.classList.contains("grid-cell")) {
-		start_cell = e.target;
+// Helper function to get the target cell from a touch event
+function getTouchCell(event) {
+	const touch = event.touches[0]; // Get the first touch point
+	return document.elementFromPoint(touch.clientX, touch.clientY); // Get the element at the touch point
+}
+
+// Mouse down / Touch start event
+grid_container.addEventListener("mousedown", handleStart);
+grid_container.addEventListener("touchstart", handleStart);
+
+function handleStart(e) {
+	e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+	const target = e.type === "touchstart" ? getTouchCell(e) : e.target;
+
+	if (target && target.classList.contains("grid-cell")) {
+		start_cell = target;
 		play_drag_sound();
 		start_cell.setAttribute("aria-selected", "true");
 		selected_cells.push(start_cell);
 		start_cell.classList.add("selected");
 		set_indicator(start_cell);
 	}
-});
+}
 
-// Mouse move event
-grid_container.addEventListener("mousemove", (e) => {
+// Mouse move / Touch move event
+grid_container.addEventListener("mousemove", handleMove);
+grid_container.addEventListener("touchmove", handleMove);
+
+function handleMove(e) {
 	if (start_cell) {
-		const endCell = document.elementFromPoint(e.clientX, e.clientY);
+		const endCell = e.type === "touchmove" ? getTouchCell(e) : document.elementFromPoint(e.clientX, e.clientY);
+
 		if (endCell && endCell.classList.contains("grid-cell")) {
 			const startIndex = parseInt(start_cell.dataset.index);
 			const endIndex = parseInt(endCell.dataset.index);
@@ -588,10 +592,13 @@ grid_container.addEventListener("mousemove", (e) => {
 			}
 		}
 	}
-});
+}
 
-// Mouse up event
-grid_container.addEventListener("mouseup", () => {
+// Mouse up / Touch end event
+grid_container.addEventListener("mouseup", handleEnd);
+grid_container.addEventListener("touchend", handleEnd);
+
+function handleEnd() {
 	if (start_cell) {
 		if (validate_word()) {
 			hue = Math.floor(Math.random() * 354);
@@ -631,4 +638,4 @@ grid_container.addEventListener("mouseup", () => {
 		start_cell = null;
 		selected_cells = [];
 	}
-});
+}

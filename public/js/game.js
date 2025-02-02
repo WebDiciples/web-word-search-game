@@ -1,4 +1,5 @@
 const game_container = document.querySelector(".game_container"),
+	audio = document.querySelector("audio"),
 	grid_container = document.querySelector(".grid_container"),
 	words_container = document.querySelector(".words"),
 	validator_ui = document.querySelector(".validator_ui"),
@@ -16,6 +17,7 @@ const game_container = document.querySelector(".game_container"),
 	quit_categories_btn = document.querySelector(".quit_categories"),
 	quit_game_btn = document.querySelector(".quit_game"),
 	current_category = document.querySelector(".current_category"),
+	win_screen = document.querySelector("#confetti-container dialog"),
 	setting_popup = document.querySelector("#settings");
 
 const letter_arr = [
@@ -47,7 +49,7 @@ const letter_arr = [
 	"z",
 ];
 
-const sounds = ["bubble-1.mp3", "bubble-2.mp3"];
+const sound_bonus = "bubble-1.mp3";
 
 const directions = [
 	[0, 1], // Horizontal
@@ -102,9 +104,12 @@ if (storedData) {
 
 let can_play_music = game_data.music;
 let can_play_sound = game_data.sound;
+
 let mute = false;
 
-active_screen("active_screen", start_screen);
+window.onload = () => {
+	active_screen("active_screen", start_screen);
+};
 
 function play_sound(params) {
 	let sound = new Audio(`public/assets/music/${params}`);
@@ -115,31 +120,26 @@ function play_sound(params) {
 	console.log(can_play_sound);
 }
 
-function play_drag_sound() {
-	let current_sound = sounds[Math.floor(sounds.length * Math.random())];
-	let sound = new Audio(`public/assets/music/${current_sound}`);
-	sound.volume = 0.5;
+function play_bonus_sound() {
+	let sound = new Audio(`public/assets/music/${sound_bonus}`);
+	sound.volume = 0.8;
 	if (can_play_sound === true && mute === false) sound.play();
 }
 
-function play_music(params) {
-	let music = new Audio(`public/assets/music/${params}`);
-	music.volume = 0.8;
-	music.loop = true;
-	console.log(can_play_music);
-	if (can_play_music == true && mute == false) {
-		music.play();
+function play_music() {
+	if (can_play_music === true && mute == false) {
+		audio.play();
 	} else {
-		music.pause();
+		audio.pause();
 	}
 }
 
-play_music("bg_loop.mp3");
+play_music();
 
 function start_game(param) {
 	let category;
 	active_screen("active_screen", game_container);
-
+	play_sound("click.wav");
 	reset_game();
 
 	grid_container.innerHTML = ""; // Réinitialiser la grille
@@ -152,8 +152,6 @@ function start_game(param) {
 
 	setup_game(game_data.difficulty, category);
 	current_category.textContent = category;
-
-	console.log(category);
 }
 
 function render_category() {
@@ -217,7 +215,7 @@ options_btns.forEach((btn) => {
 				setting_body.style.justifyContent = "start";
 				break;
 			case "difficulty":
-				setting_body.style.justifyContent = "center";
+				setting_body.style.justifyContent = "end";
 				break;
 
 			default:
@@ -234,12 +232,17 @@ music_select_btns.forEach((input) => {
 		switch (input.id) {
 			case "music":
 				game_data.music = input.checked;
+				can_play_music = input.checked;
 				break;
 			case "sounds_effect":
 				game_data.sound = input.checked;
+				can_play_sound = input.checked;
 				break;
 		}
 		localStorage.setItem("game_data", JSON.stringify(game_data));
+		play_music();
+
+		console.log(can_play_music);
 	});
 
 	if (input.id == "music") {
@@ -278,26 +281,26 @@ difficulty_select_btns.forEach((input) => {
 async function setup_game(difficulty, category_name) {
 	switch (difficulty) {
 		case "easy":
-			grid_size = 8;
+			grid_size = 6;
 			max_words = 30;
 			max_attempts = 1000;
 			grid_container.id = difficulty;
 			break;
 		case "normal":
-			grid_size = 10;
-			max_words = 90;
+			grid_size = 8;
+			max_words = 60;
 			max_attempts = 1000;
 			grid_container.id = difficulty;
 			break;
 		case "hard":
-			grid_size = 12;
-			max_words = 100;
+			grid_size = 10;
+			max_words = 90;
 			max_attempts = 1500;
 			grid_container.id = difficulty;
 			break;
 		case "extreme":
-			grid_size = 13;
-			max_words = 100;
+			grid_size = 12;
+			max_words = 120;
 			max_attempts = 1500;
 			grid_container.id = difficulty;
 			break;
@@ -535,6 +538,7 @@ function validate_word() {
 	);
 
 	if (all_found) {
+		win_screen.showModal();
 		if (confirm("You Win!!!! Next.")) {
 			start_game(current_category.textContent);
 		}
@@ -542,6 +546,35 @@ function validate_word() {
 
 	return placed_words.includes(word);
 }
+
+function launchConfetti() {
+	const container = document.getElementById("confetti-container");
+
+	for (let i = 0; i < 100; i++) {
+		// Adjust the number for more/less confetti
+		const confetti = document.createElement("div");
+		confetti.classList.add("confetti");
+
+		// Random colors
+		confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+
+		// Random starting position
+		confetti.style.left = `${Math.random() * 100}vw`;
+
+		// Random animation duration and delay
+		confetti.style.animationDuration = `${2 + Math.random() * 3}s`;
+		confetti.style.animationDelay = `${Math.random()}s`;
+
+		container.appendChild(confetti);
+
+		// Remove confetti after animation ends
+		setTimeout(() => confetti.remove(), 50000);
+	}
+}
+
+// Call this when the player wins
+launchConfetti();
+
 ////////////////////////// MOUSE AND TOUCH CONTROLL //////////////////////////
 
 // Helper function to get the target cell from a touch event
@@ -560,7 +593,6 @@ function handleStart(e) {
 
 	if (target && target.classList.contains("grid-cell")) {
 		start_cell = target;
-		play_drag_sound();
 		start_cell.setAttribute("aria-selected", "true");
 		selected_cells.push(start_cell);
 		start_cell.classList.add("selected");
@@ -574,7 +606,10 @@ grid_container.addEventListener("touchmove", handleMove);
 
 function handleMove(e) {
 	if (start_cell) {
-		const endCell = e.type === "touchmove" ? getTouchCell(e) : document.elementFromPoint(e.clientX, e.clientY);
+		const endCell =
+			e.type === "touchmove"
+				? getTouchCell(e)
+				: document.elementFromPoint(e.clientX, e.clientY);
 
 		if (endCell && endCell.classList.contains("grid-cell")) {
 			const startIndex = parseInt(start_cell.dataset.index);
@@ -586,7 +621,6 @@ function handleMove(e) {
 				validator_ui.value = selected_cells
 					.map((cell) => cell.textContent)
 					.join("");
-				play_drag_sound();
 
 				update_selected_cells(startIndex, endIndex);
 			}
@@ -601,6 +635,7 @@ grid_container.addEventListener("touchend", handleEnd);
 function handleEnd() {
 	if (start_cell) {
 		if (validate_word()) {
+			play_bonus_sound();
 			hue = Math.floor(Math.random() * 354);
 			validator_ui.style.color = "lime";
 
@@ -617,8 +652,6 @@ function handleEnd() {
 				cell.classList.add("valid");
 				cell.style = `--hue: ${hue}`;
 				cell.classList.remove("selected");
-
-				console.log(cell);
 			});
 		} else {
 			validator_ui.style.color = "crimson";

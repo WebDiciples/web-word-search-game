@@ -9,12 +9,30 @@
 	</head>
 	<body>
 		<main id="app">
+			<audio
+				src="./public/assets/music/bg_loop.mp3"
+				loop
+				hidden
+				aria-valuenow="0.8"></audio>
+			<div id="confetti-container">
+				<dialog>
+					<h2>Congratulations! You Win!</h2>
+					<div class="flex">
+						<button type="button" id="go_home">home</button>
+						<button type="button" id="replay">next</button>
+					</div>
+				</dialog>
+			</div>
+
 			<section class="splash_screen screen active_screen flex jcc">
 				<div class="shape"></div>
 				<div class="shape"></div>
 				<div class="shape"></div>
 				<div class="shape"></div>
-				<h1 class="game_title">seek <br> words</h1>
+				<h1 class="game_title">
+					seek <br />
+					words
+				</h1>
 			</section>
 			<section class="start_screen screen flex jcc">
 				<div class="start_screen_info flex jcc">
@@ -83,13 +101,14 @@
 				</header>
 				<div class="category_cards"></div>
 			</section>
-			<section class="game_container " role="main">
+			<section class="game_container" role="main">
 				<header role="heading" class="flex">
 					<button type="button" class="quit_game">
 						<i class="fi fi-arrow-left"></i>
 					</button>
 
-					<h1 class="hd_title">seek words</h1> || <span class="current_category"></span>
+					<h1 class="hd_title">seek words</h1>
+					|| <span class="current_category"></span>
 				</header>
 				<div class="game_body">
 					<aside class="word_container">

@@ -21,7 +21,7 @@ A fun and engaging word search puzzle game developed with JavaScript. Find hidde
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/word-search-game.git
+   git clone https://github.com/WebDiciples/word-search-game.git
    ```
 2. Navigate to the project folder:
    ```bash
@@ -36,7 +36,6 @@ A fun and engaging word search puzzle game developed with JavaScript. Find hidde
 ## Game Settings
 - Toggle music and sound effects
 - Choose difficulty levels: Easy, Normal, Hard
-- Language selection
 
 ## Contributing
 Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.

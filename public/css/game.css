@@ -133,7 +133,7 @@ body {
 }
 
 .splash_screen {
-	background: var(--color-60);
+	background: var(--color-10);
 }
 
 .shape {
@@ -141,7 +141,7 @@ body {
 	width: calc(1vw + 5em);
 	height: calc(1vw + 5em);
 	aspect-ratio: 2/2;
-	background: linear-gradient(45deg, var(--color-10) 52%, var(--color-30));
+	background: var(--color-30);
 	border-radius: 1rem;
 	filter: blur(4rem);
 	z-index: -1;
@@ -340,10 +340,6 @@ label span {
 }
 
 .splash_screen .game_title {
-	font-size: calc(1vw + 2rem);
-	color: var(--color-60);
-	-webkit-text-stroke: 8px var(--color-10);
-
 	animation: pulse 2s infinite ease-in-out alternate;
 }
 
@@ -434,7 +430,7 @@ header button {
 
 .words {
 	display: grid;
-	grid-template-columns: repeat(auto-fit,minmax(130px,1fr));
+	grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 	margin-top: var(--mp-2);
 	text-transform: uppercase;
 }
@@ -467,23 +463,23 @@ header button {
 GRID SIZE FOR EACH DIFFICULTY
 ========= */
 #easy {
+	grid-template-columns: repeat(6, 1fr);
+	grid-template-rows: repeat(6, 1fr);
+}
+
+#normal {
 	grid-template-columns: repeat(8, 1fr);
 	grid-template-rows: repeat(8, 1fr);
 }
 
-#normal {
+#hard {
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(10, 1fr);
 }
 
-#hard {
+#extreme {
 	grid-template-columns: repeat(12, 1fr);
 	grid-template-rows: repeat(12, 1fr);
-}
-
-#extreme {
-	grid-template-columns: repeat(13, 1fr);
-	grid-template-rows: repeat(13, 1fr);
 }
 
 .grid-cell {
@@ -530,6 +526,38 @@ GRID SIZE FOR EACH DIFFICULTY
 
 .found {
 	opacity: 0.5;
+}
+
+#confetti-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none; /* So it doesn’t block clicks */
+	overflow: hidden;
+	z-index: 9999;
+}
+
+#confetti-container dialog {
+	height: 200px;
+}
+
+.confetti {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	background-color: red;
+	opacity: 0.9;
+	border-radius: 50%;
+	animation: fall linear infinite;
+}
+
+@keyframes fall {
+	to {
+		transform: translateY(100vh) rotate(360deg);
+		opacity: 0;
+	}
 }
 
 /* RESPONSIVENESS */

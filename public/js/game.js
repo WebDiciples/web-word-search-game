@@ -17,7 +17,9 @@ const game_container = document.querySelector(".game_container"),
 	quit_categories_btn = document.querySelector(".quit_categories"),
 	quit_game_btn = document.querySelector(".quit_game"),
 	current_category = document.querySelector(".current_category"),
-	win_screen = document.querySelector("#confetti-container dialog"),
+	win_screen = document.querySelector(".win_popup"),
+	go_home = document.querySelector("#go_home"),
+	replay = document.querySelector("#replay"),
 	setting_popup = document.querySelector("#settings");
 
 const letter_arr = [
@@ -78,7 +80,7 @@ let found_words = [];
 
 let start_cell = null;
 
-let hue = 10;
+let lastHue = null;
 
 let storedData = localStorage.getItem("game_data");
 let game_data = {};
@@ -122,6 +124,18 @@ function play_sound(params) {
 
 function play_bonus_sound() {
 	let sound = new Audio(`public/assets/music/${sound_bonus}`);
+	sound.volume = 0.8;
+	if (can_play_sound === true && mute === false) sound.play();
+}
+
+function play_error_sound() {
+	let sound = new Audio(`public/assets/music/error.mp3`);
+	sound.volume = 1;
+	if (can_play_sound === true && mute === false) sound.play();
+}
+
+function play_win_sound() {
+	let sound = new Audio(`public/assets/music/game-win.mp3`);
 	sound.volume = 0.8;
 	if (can_play_sound === true && mute === false) sound.play();
 }
@@ -282,25 +296,25 @@ async function setup_game(difficulty, category_name) {
 	switch (difficulty) {
 		case "easy":
 			grid_size = 6;
-			max_words = 30;
+			max_words = 60;
 			max_attempts = 1000;
 			grid_container.id = difficulty;
 			break;
 		case "normal":
 			grid_size = 8;
-			max_words = 60;
+			max_words = 90;
 			max_attempts = 1000;
 			grid_container.id = difficulty;
 			break;
 		case "hard":
 			grid_size = 10;
-			max_words = 90;
+			max_words = 120;
 			max_attempts = 1500;
 			grid_container.id = difficulty;
 			break;
 		case "extreme":
 			grid_size = 12;
-			max_words = 120;
+			max_words = 150;
 			max_attempts = 1500;
 			grid_container.id = difficulty;
 			break;
@@ -538,42 +552,45 @@ function validate_word() {
 	);
 
 	if (all_found) {
+		can_play_music = false;
+		play_music("bg_loop.mp3");
+		play_win_sound();
 		win_screen.showModal();
-		if (confirm("You Win!!!! Next.")) {
-			start_game(current_category.textContent);
-		}
+
+		setTimeout(() => {
+			mute = true;
+			replay.disabled = false;
+			go_home.disabled = false;
+		}, 1000);
 	}
 
 	return placed_words.includes(word);
 }
 
-function launchConfetti() {
-	const container = document.getElementById("confetti-container");
+go_home.addEventListener("click", () => {
+	win_screen.close();
+	can_play_music = game_data.music;
+	mute = false;	
+	play_music("bg_loop.mp3");
+	active_screen("active_screen", start_screen);
+});
 
-	for (let i = 0; i < 100; i++) {
-		// Adjust the number for more/less confetti
-		const confetti = document.createElement("div");
-		confetti.classList.add("confetti");
+replay.addEventListener("click", () => {
+	win_screen.close();
+	can_play_music = game_data.music;
+	mute = false;	
+	play_music("bg_loop.mp3");
+	start_game(current_category.textContent);
+});
 
-		// Random colors
-		confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-
-		// Random starting position
-		confetti.style.left = `${Math.random() * 100}vw`;
-
-		// Random animation duration and delay
-		confetti.style.animationDuration = `${2 + Math.random() * 3}s`;
-		confetti.style.animationDelay = `${Math.random()}s`;
-
-		container.appendChild(confetti);
-
-		// Remove confetti after animation ends
-		setTimeout(() => confetti.remove(), 50000);
-	}
+function getUniqueHue() {
+	let hue;
+	do {
+		hue = Math.floor(Math.random() * 354);
+	} while (lastHue !== null && Math.abs(hue - lastHue) < 40); // Ensures at least 40° difference
+	lastHue = hue;
+	return hue;
 }
-
-// Call this when the player wins
-launchConfetti();
 
 ////////////////////////// MOUSE AND TOUCH CONTROLL //////////////////////////
 
@@ -636,7 +653,7 @@ function handleEnd() {
 	if (start_cell) {
 		if (validate_word()) {
 			play_bonus_sound();
-			hue = Math.floor(Math.random() * 354);
+			let hue = getUniqueHue();
 			validator_ui.style.color = "lime";
 
 			setTimeout(() => {
@@ -644,16 +661,13 @@ function handleEnd() {
 				validator_ui.value = "";
 			}, 1500);
 
-			if (hue > 354) {
-				hue = 50;
-			}
-
 			selected_cells.forEach((cell) => {
 				cell.classList.add("valid");
-				cell.style = `--hue: ${hue}`;
+				cell.lastChild.style.background = `hsla(${hue}, 100%, 70%, 0.9)`; // Change the color of the indicator
 				cell.classList.remove("selected");
 			});
 		} else {
+			play_error_sound();
 			validator_ui.style.color = "crimson";
 
 			setTimeout(() => {

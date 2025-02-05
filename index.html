@@ -14,15 +14,26 @@
 				loop
 				hidden
 				aria-valuenow="0.8"></audio>
-			<div id="confetti-container">
-				<dialog>
-					<h2>Congratulations! You Win!</h2>
-					<div class="flex">
-						<button type="button" id="go_home">home</button>
-						<button type="button" id="replay">next</button>
-					</div>
-				</dialog>
-			</div>
+
+			<dialog class="win_popup">
+				<h2>Congratulations! You Win!</h2>
+				<div class="wins_popup_btns flex">
+					<button
+						type="button"
+						id="go_home"
+						disabled="true
+					">
+						home
+					</button>
+					<button
+						type="button"
+						id="replay"
+						disabled="true
+					">
+						next
+					</button>
+				</div>
+			</dialog>
 
 			<section class="splash_screen screen active_screen flex jcc">
 				<div class="shape"></div>

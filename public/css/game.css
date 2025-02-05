@@ -513,6 +513,7 @@ GRID SIZE FOR EACH DIFFICULTY
 	border-radius: 50%;
 	transform: translate(-50%, -50%);
 	pointer-events: none;
+	mix-blend-mode: multiply;
 	z-index: -1;
 }
 
@@ -520,44 +521,29 @@ GRID SIZE FOR EACH DIFFICULTY
 	background: hsla(0, 0%, 77%, 0.8); /* Highlight selected cells */
 }
 
-.valid .indicator {
-	background: hsla(var(--hue), 100%, 70%, 0.8); /* Highlight selected cells */
-}
-
 .found {
 	opacity: 0.5;
 }
 
-#confetti-container {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none; /* So it doesn’t block clicks */
-	overflow: hidden;
-	z-index: 9999;
+.win_popup {
+	height: fit-content;
 }
 
-#confetti-container dialog {
-	height: 200px;
+.win_popup::backdrop {
+	background: hsla(0, 3%, 6%, 0.7);
+	backdrop-filter: blur(2rem);
 }
 
-.confetti {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	background-color: red;
-	opacity: 0.9;
-	border-radius: 50%;
-	animation: fall linear infinite;
+.wins_popup_btns {
+	gap: var(--mp-2);
+	margin-top: var(--mp-4);
 }
 
-@keyframes fall {
-	to {
-		transform: translateY(100vh) rotate(360deg);
-		opacity: 0;
-	}
+.wins_popup_btns button {
+	width: 100px;
+	padding: var(--mp-2);
+	background: var(--color-10);
+	color: var(--color-60);
 }
 
 /* RESPONSIVENESS */
